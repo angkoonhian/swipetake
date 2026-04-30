@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { insertVote, queryStats, queryBatchStats } from './db';
+import { insertVote, queryStats, queryBatchStats } from './db.js';
 
 export const router = Router();
 

@@ -1,8 +1,12 @@
 import express from 'express';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import cors from 'cors';
-import { router } from './routes';
-import { initDb } from './db';
+import { router } from './routes.js';
+import { initDb } from './db.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
