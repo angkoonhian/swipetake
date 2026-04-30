@@ -21,11 +21,17 @@ app.get('*', (_req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-initDb()
-  .then(() => {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => {
-    console.error('Failed to initialise database', err);
-    process.exit(1);
-  });
+// Start server — database is optional (votes work only when DATABASE_URL is set)
+if (process.env.DATABASE_URL) {
+  initDb()
+    .then(() => {
+      app.listen(PORT, () => console.log(`Server running on port ${PORT} (with database)`));
+    })
+    .catch((err) => {
+      console.error('Database init failed, starting without votes:', err.message);
+      app.listen(PORT, () => console.log(`Server running on port ${PORT} (without database)`));
+    });
+} else {
+  console.log('No DATABASE_URL set — vote tallying disabled');
+  app.listen(PORT, () => console.log(`Server running on port ${PORT} (without database)`));
+}

@@ -1,8 +1,10 @@
 import { Pool } from 'pg';
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const hasDb = !!process.env.DATABASE_URL;
+export const pool = hasDb ? new Pool({ connectionString: process.env.DATABASE_URL }) : null;
 
 export async function initDb(): Promise<void> {
+  if (!pool) return;
   await pool.query(`
     CREATE TABLE IF NOT EXISTS votes (
       question_id TEXT NOT NULL,
@@ -14,10 +16,12 @@ export async function initDb(): Promise<void> {
 }
 
 export async function insertVote(questionId: string, choice: number): Promise<void> {
+  if (!pool) return;
   await pool.query('INSERT INTO votes (question_id, choice) VALUES ($1, $2)', [questionId, choice]);
 }
 
 export async function queryStats(questionId: string): Promise<Record<string, number>> {
+  if (!pool) return {};
   const { rows } = await pool.query<{ choice: number; count: string }>(
     'SELECT choice, COUNT(*) AS count FROM votes WHERE question_id = $1 GROUP BY choice',
     [questionId],
@@ -30,7 +34,7 @@ export async function queryStats(questionId: string): Promise<Record<string, num
 export async function queryBatchStats(
   ids: string[],
 ): Promise<Record<string, Record<string, number>>> {
-  if (ids.length === 0) return {};
+  if (!pool || ids.length === 0) return {};
   const { rows } = await pool.query<{ question_id: string; choice: number; count: string }>(
     'SELECT question_id, choice, COUNT(*) AS count FROM votes WHERE question_id = ANY($1) GROUP BY question_id, choice',
     [ids],
