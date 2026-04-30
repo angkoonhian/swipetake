@@ -1,11 +1,19 @@
 import { Pool } from 'pg';
 
-const hasDb = !!process.env.DATABASE_URL;
-export const pool = hasDb ? new Pool({ connectionString: process.env.DATABASE_URL }) : null;
+let pool: Pool | null = null;
+
+function getPool(): Pool | null {
+  if (!process.env.DATABASE_URL) return null;
+  if (!pool) {
+    pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  }
+  return pool;
+}
 
 export async function initDb(): Promise<void> {
-  if (!pool) return;
-  await pool.query(`
+  const p = getPool();
+  if (!p) return;
+  await p.query(`
     CREATE TABLE IF NOT EXISTS votes (
       question_id TEXT NOT NULL,
       choice      INTEGER NOT NULL,
@@ -16,13 +24,15 @@ export async function initDb(): Promise<void> {
 }
 
 export async function insertVote(questionId: string, choice: number): Promise<void> {
-  if (!pool) return;
-  await pool.query('INSERT INTO votes (question_id, choice) VALUES ($1, $2)', [questionId, choice]);
+  const p = getPool();
+  if (!p) return;
+  try { await p.query('INSERT INTO votes (question_id, choice) VALUES ($1, $2)', [questionId, choice]); } catch {}
 }
 
 export async function queryStats(questionId: string): Promise<Record<string, number>> {
-  if (!pool) return {};
-  const { rows } = await pool.query<{ choice: number; count: string }>(
+  const p = getPool();
+  if (!p) return {};
+  const { rows } = await p.query<{ choice: number; count: string }>(
     'SELECT choice, COUNT(*) AS count FROM votes WHERE question_id = $1 GROUP BY choice',
     [questionId],
   );
@@ -34,8 +44,9 @@ export async function queryStats(questionId: string): Promise<Record<string, num
 export async function queryBatchStats(
   ids: string[],
 ): Promise<Record<string, Record<string, number>>> {
-  if (!pool || ids.length === 0) return {};
-  const { rows } = await pool.query<{ question_id: string; choice: number; count: string }>(
+  const p = getPool();
+  if (!p || ids.length === 0) return {};
+  const { rows } = await p.query<{ question_id: string; choice: number; count: string }>(
     'SELECT question_id, choice, COUNT(*) AS count FROM votes WHERE question_id = ANY($1) GROUP BY question_id, choice',
     [ids],
   );
