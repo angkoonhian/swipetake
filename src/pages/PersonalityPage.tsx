@@ -3,6 +3,7 @@ import { calculatePersonality, generatePersonalitySummary, getTotalAnswered } fr
 import { AdPlaceholder } from '../components/AdPlaceholder';
 import { showRewarded, adsConfigured } from '../services/ads';
 import { useNavigate } from 'react-router-dom';
+import { FEATURES } from '../constants/features';
 
 const TRAIT_CONFIGS = [
   {
@@ -392,7 +393,7 @@ export function PersonalityPage() {
             boxShadow: '3px 3px 0px #1a1a1a',
           }}
         >
-          AI Personality Report
+          {FEATURES.AI_PERSONALITY ? 'AI Personality Report' : 'Personality Report'}
         </div>
 
         <h1

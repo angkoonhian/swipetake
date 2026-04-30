@@ -14,6 +14,7 @@ import { useCallback, useRef } from 'react';
 import { generateBatch } from '../services/content-generator';
 import type { ContentQueue } from '../services/content-queue';
 import type { Question } from '../types';
+import { FEATURES } from '../constants/features';
 
 const BATCH_SIZE = 25;
 
@@ -26,6 +27,9 @@ export function useContentRefill(queue: ContentQueue) {
    * Returns the newly appended questions (empty array if nothing generated).
    */
   const triggerRefillIfNeeded = useCallback(async (): Promise<Question[]> => {
+    // AI_CONTENT_REFILL is disabled — app uses only the 110 pre-loaded questions.
+    if (!FEATURES.AI_CONTENT_REFILL) return [];
+
     if (generatingRef.current) return [];
     if (!queue.shouldRefill()) return [];
 

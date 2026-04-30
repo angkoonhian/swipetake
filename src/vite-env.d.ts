@@ -1,16 +1,9 @@
 /// <reference types="vite/client" />
 
-// Stub declaration for @capacitor-community/admob so TypeScript is satisfied
-// even before the package is installed via `npm install && npx cap sync`.
-// All actual types are `any` — the runtime implementation guards with try/catch.
 declare module '@capacitor-community/admob' {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export const AdMob: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export const BannerAdSize: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export const BannerAdPosition: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export const AdMobRewardItem: any;
 }
 

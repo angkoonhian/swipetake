@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { FeedEngine } from '../services/feed-engine';
 import { saveAnswer, updateStreak } from '../services/stats';
+import { submitVote } from '../services/votes';
 import { useContentRefill } from './useContentRefill';
 import type { Question } from '../types';
 
@@ -53,6 +54,9 @@ export function useFeed() {
         isCorrect,
         agreedWithMajority,
       });
+
+      // Fire-and-forget: record anonymous vote in backend (best-effort).
+      void submitVote(q.id, choiceIndex);
 
       updateStreak();
 

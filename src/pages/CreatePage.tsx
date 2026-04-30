@@ -5,6 +5,7 @@ import type { CustomQuiz, CustomQuestion } from '../types';
 import { encodeQuiz } from '../services/qr-codec';
 import { generateCustomQuiz, getRemainingGenerations } from '../services/quiz-generator';
 import { CONTENT_GUIDELINES } from '../constants/content-policy';
+import { FEATURES } from '../constants/features';
 
 const QR_WARN_THRESHOLD  = 2000; // chars — warn user
 const QR_BLOCK_THRESHOLD = 3500; // chars — block QR generation
@@ -600,8 +601,35 @@ export function CreatePage() {
             padding: '18px',
             marginBottom: '20px',
             boxShadow: '3px 3px 0px ' + TEAL,
+            position: 'relative',
+            opacity: FEATURES.AI_QUIZ_GENERATION ? 1 : 0.4,
+            pointerEvents: FEATURES.AI_QUIZ_GENERATION ? 'auto' : 'none',
           }}
         >
+          {/* Coming Soon badge overlay */}
+          {!FEATURES.AI_QUIZ_GENERATION && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: YELLOW,
+                border: `2px solid ${DARK}`,
+                borderRadius: '999px',
+                padding: '3px 10px',
+                fontSize: '11px',
+                fontWeight: '900',
+                color: DARK,
+                boxShadow: '2px 2px 0px ' + DARK,
+                letterSpacing: '0.3px',
+                zIndex: 1,
+                pointerEvents: 'none',
+              }}
+            >
+              🔒 Coming Soon
+            </div>
+          )}
+
           <div style={{ fontWeight: '900', fontSize: '15px', color: DARK, marginBottom: '10px' }}>
             🤖 AI Generate
             <span style={{ marginLeft: '8px', fontSize: '12px', fontWeight: '700', color: '#aaa' }}>
@@ -614,21 +642,21 @@ export function CreatePage() {
               value={aiTopic}
               placeholder="Topic e.g. 'space', 'movies', 'history'"
               onChange={(e) => setAiTopic(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAIGenerate(); }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && FEATURES.AI_QUIZ_GENERATION) handleAIGenerate(); }}
             />
             <button
-              onClick={handleAIGenerate}
-              disabled={aiLoading || remainingAI <= 0}
+              onClick={FEATURES.AI_QUIZ_GENERATION ? handleAIGenerate : undefined}
+              disabled={!FEATURES.AI_QUIZ_GENERATION || aiLoading || remainingAI <= 0}
               style={{
                 padding: '14px 18px',
                 borderRadius: '14px',
                 border: `2px solid ${DARK}`,
-                background: aiLoading || remainingAI <= 0 ? '#e8e4de' : CORAL,
-                color: aiLoading || remainingAI <= 0 ? '#bbb' : '#fff',
+                background: '#e8e4de',
+                color: '#bbb',
                 fontWeight: '800',
                 fontSize: '14px',
-                cursor: aiLoading || remainingAI <= 0 ? 'not-allowed' : 'pointer',
-                boxShadow: aiLoading || remainingAI <= 0 ? 'none' : '2px 2px 0px ' + DARK,
+                cursor: 'not-allowed',
+                boxShadow: 'none',
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
               }}

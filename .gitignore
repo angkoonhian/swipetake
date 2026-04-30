@@ -2,6 +2,11 @@ node_modules
 dist
 dist-ssr
 *.local
-android
 ios
 .DS_Store
+
+# Android — include project source, exclude build artifacts
+android/app/build/
+android/.gradle/
+android/build/
+android/local.properties
